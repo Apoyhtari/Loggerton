@@ -3,12 +3,23 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var fs = require('fs');
+var forever = require('forever-monitor');
 var file = "log.db";
 var exists = fs.existsSync(file);
 var sqlite3 = require('sqlite3').verbose();
 var db = new sqlite3.Database(file);
 var path = require('path');
 var selectedDb = "logmessages";
+var child = new (forever.Monitor)('index.js', {
+  max: 3,
+  silent: true,
+  options: []
+});
+	child.on('exit', function() {
+		console.log('crashed and exited after 3 restarts');
+});
+
+child.start();
 app.get('/', function(req, res){
   res.sendfile('index.html');
 });

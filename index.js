@@ -20,11 +20,13 @@ var child = new (forever.Monitor)('index.js', {
 });
 
 child.start();
+
 app.get('/', function(req, res){
   res.sendfile('index.html');
 });
 
 app.use("/css", express.static(__dirname + '/css'));
+app.use("/css/pure", express.static(__dirname + '/css/pure'));
 
 db.serialize(function(){
 	if(!exists) {
@@ -62,6 +64,7 @@ console.log('entry added to database');
 	});
   socket.on('make', function(newDB){
 		console.log('got a message to create some life'+newDB);
+		if(!exists)
 		db.run("CREATE TABLE " + newDB +"(info TEXT)");
 		console.log('doned it');
 

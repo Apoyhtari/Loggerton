@@ -1,11 +1,11 @@
 {
-  "name": "socket-chat-example",
+  "name": "Loggerton",
   "version": "0.0.1",
-  "description": "my first app",
+  "description": "Some sort of logging app",
   "dependencies": {
     "express": "^4.8.3",
     "forever-monitor": "^1.3.0",
-    "jquery-ui": "^1.10.5",
+    "jade": "^1.6.0",
     "socket.io": "^1.0.6",
     "sqlite3": "^2.2.7"
   }

@@ -1,0 +1,61 @@
+doctype html
+html.
+    <head>
+        <title>Loggerton</title>
+
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/pure/pure-min.css"> 
+    </head>
+
+        <body>
+            <header>
+                <h2>Welcome to my logger software</h2>
+
+                <select id="select">.
+                    each channel in channels
+                        option #{channel}
+                </select>
+                <form class="pure-form" id="maker" action="">
+                    <input id="DBmaker" />
+                    <button class="pure-button">create</button>
+                </form>
+
+            </header>
+            <ul id="messages"></ul>
+            <form class="pure-form" id="msg" action="">
+                <input id="m" autocomplete="off" />
+                <button class="pure-button">Send</button>
+            </form>
+            <script src="/socket.io/socket.io.js"></script>
+            <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+            <script>
+                var socket = io();
+                $('#msg').submit(function() {
+                    socket.emit('chat message', $('#m').val());
+                    $('#m').val('');
+                    return false;
+                });
+
+                $('#select').change(function() {
+                    var e = document.getElementById('select');
+                    var select = e.options[e.selectedIndex].value;
+
+                    socket.emit('select', $('#select').val());
+                    $('#select').val('');
+                    console.log('sending select with value: ' + select);
+                    $('li').remove();
+                    return false;
+
+                });
+                socket.on('chat message', function(msg) {
+                    $('#messages').append($('<li>').text(msg));
+                });
+
+                $('#maker').submit(function() {
+                    socket.emit('make', $('#DBmaker').val());
+                    $('#DBmaker').val('');
+                    console.log('doned it');
+
+                });
+            </script>
+        </body>

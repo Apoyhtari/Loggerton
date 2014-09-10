@@ -19,3 +19,5 @@ build/Release
 node_modules
 # Users Environment Variables
 .lock-wscript
+
+data.db

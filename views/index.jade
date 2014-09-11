@@ -1,34 +1,32 @@
 doctype html
-html.
-    <head>
-        <title>Loggerton</title>
+html
+    head
+        title Loggerton
 
-        <link rel="stylesheet" href="css/style.css">
-        <link rel="stylesheet" href="css/pure/pure-min.css"> 
-    </head>
+        link(rel="stylesheet" href="css/style.css")
+        link(rel="stylesheet" href="css/pure/pure-min.css")
+        body
+            header
+                h2 Welcome to my logger software
 
-        <body>
-            <header>
-                <h2>Welcome to my logger software</h2>
-
-                <select id="select">.
+                select#select
                     each channel in channels
                         option #{channel}
-                </select>
-                <form class="pure-form" id="maker" action="">
-                    <input id="DBmaker" />
-                    <button class="pure-button">create</button>
-                </form>
+                
+                form#maker.pure-form(action="")
+                    input#DBmaker
+                    button.pure-button create
 
-            </header>
-            <ul id="messages"></ul>
-            <form class="pure-form" id="msg" action="">
-                <input id="m" autocomplete="off" />
-                <button class="pure-button">Send</button>
-            </form>
-            <script src="/socket.io/socket.io.js"></script>
-            <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
-            <script>
+            ul#messages
+
+            form#msg.pure-form(action)
+                input#m(autocomplete="off")
+                button.pure-button Send
+            
+            script(src="/socket.io/socket.io.js")
+            script(src="http://code.jquery.com/jquery-1.11.1.js")
+
+            script(type="text/javascript").
                 var socket = io();
                 $('#msg').submit(function() {
                     socket.emit('chat message', $('#m').val());
@@ -57,5 +55,3 @@ html.
                     console.log('doned it');
 
                 });
-            </script>
-        </body>

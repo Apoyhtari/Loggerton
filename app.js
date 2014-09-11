@@ -13,6 +13,7 @@ var db = new sqlite3.Database(dbFile);
 
 var path = require('path');
 var bodyParser = require('body-parser')
+var validator = require('validator');
 
 var child = new(forever.Monitor)('app.js', {
     max: 3,
@@ -26,13 +27,16 @@ child.on('exit', function() {
 
 app.set('view engine', 'jade')
 app.set('views', './views')
+
 app.use("/css", express.static(__dirname + '/css'));
 app.use("/css/pure", express.static(__dirname + '/css/pure'));
+app.use("/js", express.static(__dirname + '/js'));
+
 app.use(bodyParser.urlencoded({ extended: false }))
 
 app.get('/', function(req, res) {
     db.all('SELECT id, name FROM Channels', function(err, chans) {
-        db.all('SELECT text FROM Messages WHERE channel=0', function(err, msgs) {
+        db.all('SELECT text FROM Messages WHERE channel=1', function(err, msgs) {
 
             res.render('index', {channels: chans, messages: msgs});
         });
@@ -40,21 +44,51 @@ app.get('/', function(req, res) {
 });
 app.post('/channel/', function(req, res) {
     var stmt = db.prepare("INSERT INTO Channels(name) VALUES(?)");
-    stmt.run(req.body.newDBName);
+    stmt.run(req.body.newChannel, function(err) {
+        console.log("new channel: " + req.body.newChannel);
+        
+        // TODO: make checks for the stmt and send false if stmt fails. (this.changes > 0)
 
-    console.log("new channel: " + req.body.newDBName);
+        // return this.lastID
+        var data = {};
+        if (this.changes > 0) {
+            data.success = true;
+            data.lastID = this.lastID
+            data.name = req.body.newChannel;
+            
+        } else {
+            data.success = false;
+        }
+        res.json(data); 
 
-    res.redirect("/");
+    });
+
 });
 
 app.post('/channel/:id', function(req, res) {
+    var id = req.params.id;
+    var msg = validator.escape(req.body.message);
 
-    var stmt = db.prepare("INSERT INTO Messages(text, channel) VALUES(?, ?)");
-    stmt.run(req.body.message, req.params.id);
+    if (msg) {
+        var stmt = db.prepare("INSERT INTO Messages(text, channel) VALUES(?, ?)");
+        stmt.run(msg, id, function(err) {
+            console.log("new message: '" + msg + "' on channel: " + id);
 
-    console.log(req.body.message, req.params.id);
+            // TODO: make checks for the stmt and send false if stmt fails.
 
-    res.redirect("/")
+            res.json({success: true, message: msg});
+            
+        });
+    }
+});
+
+app.get('/channel/:id', function(req, res) {
+
+    // TODO: clean this shit up. prepare statement and so forth.
+    db.all("SELECT * from Messages WHERE channel=" + req.params.id, function(err, rows) {
+        var data = {success: true, messages: rows};
+        res.json(data);
+    });
 });
 
 db.serialize(function() {
@@ -67,7 +101,7 @@ db.serialize(function() {
 
         db.run("CREATE TABLE Messages (id INTEGER PRIMARY KEY AUTOINCREMENT, \
                                        text TEXT, \
-                                       channel INTEGER NOT NULL DEFAULT 0, \
+                                       channel INTEGER NOT NULL DEFAULT 1, \
                                        FOREIGN KEY (channel) REFERENCES Channels(id) \
                                            ON DELETE CASCADE)");
     }

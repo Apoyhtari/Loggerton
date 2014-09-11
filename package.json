@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Some sort of logging app",
   "dependencies": {
+    "body-parser": "^1.8.1",
     "express": "^4.8.3",
     "forever-monitor": "^1.3.0",
     "jade": "^1.6.0",

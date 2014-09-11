@@ -9,49 +9,30 @@ html
             header
                 h2 Welcome to my logger software
 
-                select#select
-                    each channel in channels
-                        option #{channel}
+            select#select
+                each channel in channels
+                    option(value="#{channel.id}") #{channel.name}
                 
-                form#maker.pure-form(action="")
-                    input#DBmaker
-                    button.pure-button create
+            form#maker.pure-form(action="/channel/", method="post")
+                input#newDBName(name="newDBName")
+                button.pure-button create
 
             ul#messages
+                each msg in messages
+                    li #{msg.text}
 
-            form#msg.pure-form(action)
-                input#m(autocomplete="off")
+            form#msg.pure-form(action="/channel/0", method="post")
+                input#m(autocomplete="off", name="message")
                 button.pure-button Send
             
             script(src="/socket.io/socket.io.js")
             script(src="http://code.jquery.com/jquery-1.11.1.js")
 
             script(type="text/javascript").
-                var socket = io();
-                $('#msg').submit(function() {
-                    socket.emit('chat message', $('#m').val());
-                    $('#m').val('');
-                    return false;
-                });
 
                 $('#select').change(function() {
-                    var e = document.getElementById('select');
                     var select = e.options[e.selectedIndex].value;
-
-                    socket.emit('select', $('#select').val());
-                    $('#select').val('');
+                    
                     console.log('sending select with value: ' + select);
-                    $('li').remove();
-                    return false;
-
-                });
-                socket.on('chat message', function(msg) {
-                    $('#messages').append($('<li>').text(msg));
-                });
-
-                $('#maker').submit(function() {
-                    socket.emit('make', $('#DBmaker').val());
-                    $('#DBmaker').val('');
-                    console.log('doned it');
-
+                    $('#messages li').remove();
                 });
